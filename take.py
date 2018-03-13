@@ -40,7 +40,7 @@ def make_os_command(config, exposureMode , file_name):
         " -o "+file_name
     return os_command
 
-def run_loop(base, pause, config):
+def run_loop(base, pause, config, usbPath):
     am = config["am"]
     pm = config["pm"]
     exposureCalc1= exposureCalc(am, pm)
@@ -53,7 +53,8 @@ def run_loop(base, pause, config):
         hoursMinutes = int(time.strftime("%H%M"))
         exposureMode = exposureCalc1.get_exposure(hoursMinutes)
         take_shot = exposureCalc1.take_shot(hoursMinutes)
-
+	    usb_cam_connected = os.path.exists("/dev/video0")
+	    
         if (take_shot == True):
             now = datetime.now()
             path = prepare_dir(base, now)
@@ -66,6 +67,15 @@ def run_loop(base, pause, config):
             os_command = make_os_command(config, exposureMode, file_name)
             os.system(os_command)
             print("Written: " + file_name)
+        
+        	if (usb_cam_connected == True):
+	            path = prepare_dir(usbPath, now)
+                name=usbPath.replace("/", "_") + "_" + mili + ".jpg"
+
+				file_name = usbPath + "/" + path + "/" + name
+
+    	        os_command = "fswebcam -r 1920x1080 --no-banner " + file_name
+        	    os.system(os_command)
         else:
             print("Shot cancelled during hours of darkness")
 
@@ -78,6 +88,7 @@ if(__name__ == '__main__'):
     	try:
             	pauseInterval = int(sys.argv[1])
             	basePath=config["base_path"]
-            	run_loop(basePath,pauseInterval, config)
+            	usbPath=config["usb_path"]
+            	run_loop(basePath,pauseInterval, config, usbPath)
     	except KeyboardInterrupt:
     		print ("Cancelling take.py")
