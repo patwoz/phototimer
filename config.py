@@ -7,7 +7,7 @@ config["flip_vertical"] = False
 config["metering_mode"] = "matrix"
 
 config["base_path"] = "/media/pi/UNTITLED/image"
-config["usb_path"] = "//media/pi/UNTITLED/usbimage"
+config["usb_path"] = "/media/pi/UNTITLED/usbimage"
 config["height"] = 1536
 config["width"] = 2048
 config["quality"] = 35
