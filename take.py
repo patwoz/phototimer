@@ -43,6 +43,7 @@ def make_os_command(config, exposureMode , file_name):
 def run_loop(base, pause, config, usbPath):
     am = config["am"]
     pm = config["pm"]
+    only_use_usb_camera = config["only_use_usb_camera"]
     exposureCalc1= exposureCalc(am, pm)
 
     current_milli_time = lambda: int(round(time.time() * 1000))
@@ -53,20 +54,22 @@ def run_loop(base, pause, config, usbPath):
         hoursMinutes = int(time.strftime("%H%M"))
         exposureMode = exposureCalc1.get_exposure(hoursMinutes)
         take_shot = exposureCalc1.take_shot(hoursMinutes)
+        
         usb_cam_connected = os.path.exists("/dev/video0")
 
         if (take_shot == True):
             now = datetime.now()
             path = prepare_dir(base, now)
+            
+            if (only_use_usb_camera == 0):
+                mili = str(current_milli_time())
+                name=path.replace("/", "_") + "_" + mili + ".jpg"
+                print("Capturing " + name + " in " + exposureMode + " mode")
+                file_name = base + "/" + path + "/" + name
 
-            mili = str(current_milli_time())
-            name=path.replace("/", "_") + "_" + mili + ".jpg"
-            print("Capturing " + name + " in " + exposureMode + " mode")
-            file_name = base + "/" + path + "/" + name
-
-            os_command = make_os_command(config, exposureMode, file_name)
-            os.system(os_command)
-            print("Written: " + file_name)
+                os_command = make_os_command(config, exposureMode, file_name)
+                os.system(os_command)
+                print("Written: " + file_name)
 
             if (usb_cam_connected == True):
                 path = prepare_dir(usbPath, now)
